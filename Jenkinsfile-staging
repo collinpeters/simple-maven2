@@ -1,0 +1,36 @@
+node {
+  def tag
+  properties([
+      parameters([
+          string(name: 'buildId', description: 'Choose build ID from depshield-master')
+      ])
+  ])
+
+  stage('Promote to Staging') {
+    deleteDir()
+    copyArtifacts(projectName: 'depshield-master', selector: specific("${buildId}"))
+
+    def props = readJSON file: 'build-info.json'
+    tag = props['tag']
+    assert tag != null
+
+    echo "Tag: $tag"
+
+    moveComponents destination: 'depshield-raw-staging', nexusInstanceId: 'nxrm3', search: [ 'tag': tag, 'format': 'raw' ]
+    moveComponents destination: 'test-maven-staging', nexusInstanceId: 'nxrm3', search: [ 'tag': tag, 'format': 'maven2' ]
+  }
+  stage('Deploy to Staging') {
+    input 'Do you want to deploy to staging?'
+    echo "Now deploying to DepShield staging environment"
+    // TODO
+  }
+  stage('Promote to Production') {
+    moveComponents destination: 'depshield-raw-production', nexusInstanceId: 'nxrm3', search: [ 'tag': tag, 'format': 'raw' ]
+    moveComponents destination: 'test-maven-production', nexusInstanceId: 'nxrm3', search: [ 'tag': tag, 'format': 'maven2' ]
+  }
+  stage('Deploy to Production') {
+    input 'Do you want to deploy to production?'
+    echo "Now deploying to DepShield production environment"
+    // TODO
+  }
+}

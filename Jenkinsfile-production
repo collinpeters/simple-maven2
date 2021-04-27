@@ -1,0 +1,21 @@
+node {
+  properties([
+      parameters([
+          string(name: 'buildId', description: 'Choose build ID from depshield-master')
+      ])
+  ])
+
+  stage('Production') {
+    deleteDir()
+    copyArtifacts(projectName: 'depshield-master', selector: specific("${buildId}"))
+
+    def props = readJSON file: 'build-info.json'
+    def tag = props['tag']
+    assert tag != null
+
+    echo "Tag: $tag"
+
+    moveComponents destination: 'depshield-raw-production', nexusInstanceId: 'nxrm3', search: [ 'tag': tag, 'format': 'raw' ]
+    moveComponents destination: 'test-maven-production', nexusInstanceId: 'nxrm3', search: [ 'tag': tag, 'format': 'maven2' ]
+  }
+}
