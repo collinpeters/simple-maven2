@@ -24,11 +24,6 @@
       <version>1.2.2.RELEASE</version>
     </dependency>
     <dependency>
-      <groupId>com.sonatype.nexus</groupId>
-      <artifactId>nexus-platform-api</artifactId>
-      <version>3.2.20180720-113856.04ab436</version>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
